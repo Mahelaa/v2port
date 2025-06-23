@@ -1,0 +1,691 @@
+@import "tailwindcss";
+
+/* Keep theme variables - these are needed for theming */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --accent-green: rgb(34, 197, 94); /* Added accent color for reference */
+  --accent-green-light: rgb(74, 222, 128);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* Use Tailwind for base styles - replace with Tailwind classes in HTML */
+body {
+  @apply bg-[var(--background)] text-[var(--foreground)] font-sans;
+}
+
+/* Enable smooth scrolling for the entire site */
+html {
+  scroll-behavior: smooth; /* Keep this as Tailwind doesn't have a utility for it */
+}
+
+/* 
+  Custom animations and effects that Tailwind doesn't provide
+  All other styles should be applied directly as Tailwind classes in the components
+*/
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes fontColorPulse {
+  0% {
+    color: rgb(34, 197, 94);
+    text-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    color: rgb(45, 212, 115);
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  }
+  100% {
+    color: rgb(34, 197, 94);
+    text-shadow: 0 0 5px rgba(34, 197, 94, 0.3);
+  }
+}
+
+/* Custom animation classes */
+.animate-pulse-custom {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-font-pulse {
+  animation: fontColorPulse 3s infinite ease-in-out;
+}
+
+/* Terminal cursor - hard to do in Tailwind */
+.terminal__cursor {
+  @apply inline-block w-2 h-4 bg-green-500 ml-1;
+}
+
+.dark .terminal__cursor {
+  @apply bg-green-400;
+}
+
+/* Hidden text for terminal pre-rendering */
+.terminal__hidden-text {
+  @apply invisible absolute whitespace-pre-wrap top-0 left-0 pointer-events-none opacity-0 select-none;
+}
+
+.terminal__visible-text {
+  @apply whitespace-pre-wrap relative;
+}
+
+/* ASCII character for the custom background */
+.ascii-bg__char {
+  @apply inline-block w-[0.6em];
+}
+
+/* Navbar styles */
+.retro-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  background-color: transparent;
+}
+
+.retro-navbar__container {
+  width: 100%;
+  padding: 0.5rem 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.retro-navbar__name {
+  font-family: monospace;
+  color: rgb(34, 197, 94);
+  padding-left: 0.25rem;
+  transition: color 0.2s;
+}
+
+.retro-navbar__name:hover {
+  color: rgb(74, 222, 128);
+}
+
+.retro-navbar__name-text {
+  color: white;
+}
+
+.retro-navbar__links {
+  flex: 1;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.retro-navbar__link {
+  font-family: monospace;
+  color: rgb(34, 197, 94);
+  transition: color 0.2s;
+}
+
+.retro-navbar__link:hover {
+  color: rgb(134, 239, 172);
+}
+
+.retro-navbar__date-time {
+  font-family: monospace;
+  color: rgb(34, 197, 94);
+  padding-right: 0.25rem;
+}
+
+.retro-navbar__date {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .retro-navbar__date {
+    display: inline;
+  }
+}
+
+/* Terminal styles */
+.terminal {
+  width: 100%;
+  max-width: 42rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(4px);
+}
+
+.dark .terminal {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.terminal__controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.terminal__control {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  margin-right: 0.5rem;
+}
+
+.terminal__control--red {
+  background-color: rgb(239, 68, 68);
+}
+
+.terminal__control--yellow {
+  background-color: rgb(234, 179, 8);
+}
+
+.terminal__control--green {
+  background-color: rgb(34, 197, 94);
+}
+
+.terminal__content {
+  font-family: monospace;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  position: relative;
+  overflow: hidden;
+  color: rgb(22, 163, 74);
+}
+
+.dark .terminal__content {
+  color: rgb(74, 222, 128);
+}
+
+.terminal__glitch {
+  color: rgb(234, 179, 8);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.dark .terminal__glitch {
+  color: rgb(250, 204, 21);
+}
+
+/* Terminal cursor should be static (no animation) */
+.terminal__cursor {
+  display: inline-block;
+  width: 0.5rem;
+  height: 1rem;
+  background-color: rgb(34, 197, 94);
+  margin-left: 0.25rem;
+}
+
+.dark .terminal__cursor {
+  background-color: rgb(74, 222, 128);
+}
+
+.terminal__cursor--dim {
+  opacity: 0.5;
+}
+
+/* Banner styles */
+.banner {
+  width: 100%;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  backdrop-filter: blur(2px);
+}
+
+.dark .banner {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.banner__container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.banner__title {
+  font-family: monospace;
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  color: rgb(34, 197, 94);
+}
+
+.banner__title-text {
+  color: white;
+  display: inline-block;
+}
+
+.banner__divider {
+  width: 6rem;
+  height: 0.25rem;
+  background-color: rgba(34, 197, 94, 0.5);
+  margin-bottom: 3rem;
+}
+
+.banner__subtitle {
+  font-family: monospace;
+  font-size: 1.25rem;
+  max-width: 48rem;
+  color: rgb(74, 222, 128);
+  margin-bottom: 2.5rem;
+}
+
+.banner__skills {
+  display: flex;
+  flex-direction: row; /* Always in one line */
+  flex-wrap: wrap; /* Allow wrapping on very small screens */
+  justify-content: center;
+  gap: 1.5rem; /* Consistent gap between items */
+  font-family: monospace;
+  font-size: 1rem;
+  color: rgba(34, 197, 94, 0.8);
+  margin-top: 1rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.banner__skills--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.banner__skill {
+  font-family: monospace;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  white-space: nowrap; /* Prevent line breaks within skills */
+}
+
+/* Keep the staggered animation timing */
+.banner__skills--visible .banner__skill:nth-child(1) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.2s;
+}
+
+.banner__skills--visible .banner__skill:nth-child(2) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.4s;
+}
+
+.banner__skills--visible .banner__skill:nth-child(3) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.6s;
+}
+
+/* Banner CTA Buttons */
+.banner__cta-container {
+  margin-top: 3rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.banner__cta-container--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.banner__cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgb(34, 197, 94);
+  color: rgb(34, 197, 94);
+  font-family: monospace;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner__cta-button:hover {
+  background-color: rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+.banner__cta-button:active {
+  background-color: rgba(34, 197, 94, 0.3);
+}
+
+.banner__cta-button--email {
+  background-color: rgba(34, 197, 94, 0.15); /* Slightly different background */
+}
+
+.banner__cta-button--email:hover {
+  background-color: rgba(34, 197, 94, 0.25);
+}
+
+.banner__cta-text {
+  margin-right: 0.5rem;
+}
+
+.banner__cta-arrow {
+  font-size: 1.25rem;
+}
+
+/* ASCII Background */
+.ascii-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  font-family: monospace;
+  font-size: 10px;
+  line-height: 1;
+  white-space: pre;
+  user-select: none;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ascii-bg__row {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Projects Showcase */
+.projects-showcase {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 4rem 0;
+}
+
+.projects-showcase__ascii-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ASCII Background - updated to work with full width showcase */
+.projects-showcase .ascii-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  font-size: 8px; /* Smaller font to fit more characters across width */
+}
+
+.projects-showcase__container {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.projects-showcase__title {
+  font-family: monospace;
+  font-size: 2rem;
+  color: rgb(34, 197, 94);
+  margin-bottom: 3rem;
+  text-align: center;
+  position: relative;
+}
+
+.projects-showcase__title::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: rgb(34, 197, 94);
+}
+
+.projects-showcase__grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .projects-showcase__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .projects-showcase__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.projects-showcase__card {
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dark .projects-showcase__card {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.projects-showcase__card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.projects-showcase__card-content {
+  padding: 1.5rem;
+}
+
+.projects-showcase__card-title {
+  font-family: monospace;
+  font-size: 1.25rem;
+  color: rgb(34, 197, 94);
+  margin-bottom: 1rem;
+}
+
+.projects-showcase__card-desc {
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .projects-showcase__card-desc {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.projects-showcase__card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Footer styles - adjusted size */
+.footer {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 3rem 0 1.5rem; /* Reduced padding */
+  border-top: 1px solid rgba(34, 197, 94, 0.2);
+  min-height: 50vh; /* Set to half viewport height */
+  display: flex;
+  align-items: center;
+}
+
+.footer__container {
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  width: 100%;
+}
+
+.footer__title {
+  font-family: monospace;
+  font-size: 2rem; /* Consistent with site style */
+  color: rgb(34, 197, 94);
+  margin-bottom: 2rem; /* Reduced margin */
+  text-align: center;
+  position: relative;
+}
+
+.footer__title::after {
+  content: '';
+  position: absolute;
+  bottom: -0.75rem; /* Smaller spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: rgb(34, 197, 94);
+}
+
+.footer__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* Reduced gap */
+  margin-bottom: 2rem; /* Reduced margin */
+}
+
+.footer__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Consistent sizing */
+}
+
+.footer__contact-item {
+  font-family: monospace;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.footer__label {
+  color: rgb(34, 197, 94);
+  font-size: 0.9rem; /* Consistent sizing */
+}
+
+.footer__link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: color 0.2s, transform 0.2s;
+  display: inline-block;
+}
+
+.footer__link:hover {
+  color: rgb(74, 222, 128);
+  text-decoration: underline;
+  transform: translateX(5px);
+}
+
+.footer__message {
+  font-family: monospace;
+}
+
+.footer__terminal-line {
+  color: rgb(34, 197, 94);
+  display: block;
+  margin-bottom: 0.75rem; /* Reduced margin */
+}
+
+.footer__description {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.footer__copyright {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin-top: 2rem; /* Reduced margin */
+  padding-top: 1rem; /* Reduced padding */
+  border-top: 1px solid rgba(34, 197, 94, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Maintain side-by-side layout on larger screens */
+@media (min-width: 768px) {
+  .footer__content {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .footer__contact {
+    width: 45%;
+  }
+  
+  .footer__message {
+    width: 45%;
+  }
+  
+  .footer__contact-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .footer__label {
+    min-width: 80px;
+  }
+}
+
+/* Updated name styling */
+.banner__name-animated {
+  color: rgb(34, 197, 94);
+  animation: fontColorPulse 3s infinite ease-in-out;
+  display: inline-block;
+  position: relative;
+  height: 1.2em;
+  line-height: 1.2;
+  vertical-align: baseline;
+  transform-origin: center;
+  transition: font-family 0.2s ease;
+  will-change: font-family;
+  min-width: 5ch; /* Prevent layout shifts */
+  text-align: right; /* Keep text alignment consistent */
+}
+
+.banner__name-static {
+  color: rgb(34, 197, 94);
+  display: inline-block;
+  position: relative;
+  font-family: monospace;
+}
