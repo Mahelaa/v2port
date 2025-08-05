@@ -1,77 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspense } from "react";
-import dynamic from 'next/dynamic';
-
-// Helper function for debouncing
-const debounce = (func, wait) => {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
-
-// Helper function for smooth scrolling with custom duration and easing
-const scrollToSection = (id) => {
-  const element = document.getElementById(id);
-  if (!element) return;
-  
-  // Get the element's position relative to the viewport
-  const elementPosition = element.getBoundingClientRect().top;
-  // Get the starting scroll position
-  const startPosition = window.pageYOffset;
-  // Calculate the distance to scroll
-  const distance = elementPosition + startPosition;
-  
-  // Define animation parameters
-  const duration = 1500; // Longer duration for slower animation (1.5 seconds)
-  const startTime = performance.now();
-  
-  // Animation function
-  const animateScroll = (currentTime) => {
-    // Calculate elapsed time
-    const timeElapsed = currentTime - startTime;
-    
-    // Calculate progress (0 to 1)
-    const progress = Math.min(timeElapsed / duration, 1);
-    
-    // Apply easing function for smoother feel
-    // This is a cubic easing function that starts slow, speeds up in the middle, and slows down at the end
-    const easing = t => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
-    const easedProgress = easing(progress);
-    
-    // Calculate the new scroll position
-    const newScrollPosition = startPosition + (distance - startPosition) * easedProgress;
-    
-    // Set the new scroll position
-    window.scrollTo(0, newScrollPosition);
-    
-    // Continue animation if not complete
-    if (progress < 1) {
-      requestAnimationFrame(animateScroll);
-    }
-  };
-  
-  // Start animation
-  requestAnimationFrame(animateScroll);
-};
+import { useEffect, useRef, useState } from "react";
 
 // Retro Computer Navbar Component
 const RetroNavbar = () => {
   // Initialize with null to avoid hydration mismatch
   const [currentTime, setCurrentTime] = useState(null);
-  // Add mounted state to track client-side rendering
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Mark as mounted (client-side only)
-    setIsMounted(true);
-    
     // Set time only on client-side
     setCurrentTime(new Date());
     
@@ -83,31 +19,27 @@ const RetroNavbar = () => {
   }, []);
 
   // Only format date/time if available (client-side only)
-  const formattedDate = "--/--/----";
-  const formattedTime = "--:--:--";
-
-  // Calculate formatted time only after mounting to avoid hydration mismatch
-  const displayDate = isMounted && currentTime 
+  const formattedDate = currentTime 
     ? currentTime.toLocaleDateString("en-US", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
       })
-    : formattedDate;
+    : "--/--/----";
 
-  const displayTime = isMounted && currentTime
+  const formattedTime = currentTime
     ? currentTime.toLocaleTimeString("en-US", {
         hour12: false,
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
       })
-    : formattedTime;
+    : "--:--:--";
 
   return (
     <nav className="fixed top-0 left-0 w-full backdrop-blur-sm z-10 bg-transparent">
       <div className="w-full py-2 px-2 flex items-center">
-        <span className="font-mono text-green-500 pl-1 transition-colors duration-200 hover:text-green-400 text-sm">
+        <span className="font-mono text-green-500 pl-1 transition-colors duration-200 hover:text-green-400">
           <span className="text-white">SHANE</span>
         </span>
         
@@ -116,7 +48,7 @@ const RetroNavbar = () => {
             href="https://github.com/mahelaa"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-green-500 transition-colors duration-200 hover:text-green-300 text-sm"
+            className="font-mono text-green-500 transition-colors duration-200 hover:text-green-300"
           >
             <span>GITHUB↗</span>
           </a>
@@ -125,29 +57,18 @@ const RetroNavbar = () => {
             href="https://linkedin.com/in/shanesa"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-green-500 transition-colors duration-200 hover:text-green-300 text-sm"
+            className="font-mono text-green-500 transition-colors duration-200 hover:text-green-300"
           >
             <span>LINKEDIN↗</span>
           </a>
           
-          <a
-            href="#contact"
-            className="font-mono text-green-500 transition-colors duration-200 hover:text-green-300 text-sm"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection('contact');
-            }}
-          >
-            <span>CONTACT</span>
-          </a>
-          
-          <span className="font-mono text-green-500 hidden sm:inline text-sm">
-            {displayDate}
+          <span className="font-mono text-green-500 hidden sm:inline">
+            {formattedDate}
           </span>
         </div>
 
-        <div className="font-mono text-green-500 pr-1 text-sm">
-          <span>{displayTime}</span>
+        <div className="font-mono text-green-500 pr-1">
+          <span>{formattedTime}</span>
         </div>
       </div>
     </nav>
@@ -165,9 +86,8 @@ const Banner = () => {
   const bannerRef = useRef(null);
   const animationFrameRef = useRef(null);
   
-  // List of fonts to cycle through - added cursive fonts
+  // List of fonts to cycle through
   const fonts = [
-    // Original monospace fonts
     'monospace',
     'VT323, monospace',
     'Press Start 2P, monospace',
@@ -175,14 +95,7 @@ const Banner = () => {
     'Consolas, monospace',
     'Lucida Console, monospace',
     'OCR A Extended, monospace',
-    'IBM Plex Mono, monospace',
-    'Dancing Script, cursive',
-    'Pacifico, cursive',
-    'Great Vibes, cursive',
-    'Allura, cursive',
-    'Alex Brush, cursive',
-    'Niconne, cursive',
-    'Lobster, cursive'
+    'IBM Plex Mono, monospace'
   ];
   
   const fullTitleText = "SHANE ABEYSEKERA";
@@ -190,30 +103,21 @@ const Banner = () => {
   const afterShaneText = " ABEYSEKERA";
   const fullSubtitleText = "<SOFTWARE_DEVELOPER />"; // Added missing declaration
   
-  // Font cycling animation - increase interval for slower cycling
-  const fontCycleInterval = useMemo(() => 300, []); // Increased from 100ms to 300ms for slower cycling
-  
+  // Font cycling animation - much faster cycling
   useEffect(() => {
     // Only start font cycling when the full name is visible
     if (titleText === fullTitleText) {
       const fontInterval = setInterval(() => {
-        setCurrentFontIndex(prevIndex => {
-          // Get a random index that's different from the current one
-          let newIndex;
-          do {
-            newIndex = Math.floor(Math.random() * fonts.length);
-          } while (newIndex === prevIndex);
-          return newIndex;
-        });
-      }, fontCycleInterval);
+        setCurrentFontIndex(prevIndex => (prevIndex + 1) % fonts.length);
+      }, 100); // Ultra fast cycling (100ms instead of 300ms)
       
       return () => clearInterval(fontInterval);
     }
-  }, [titleText, fullTitleText, fonts.length, fontCycleInterval]);
+  }, [titleText, fullTitleText, fonts.length]);
   
-  // Effect for scroll-based animations - optimized with debounce
+  // Effect for scroll-based animations
   useEffect(() => {
-    const handleScroll = debounce(() => {
+    const handleScroll = () => {
       if (!bannerRef.current) return;
       
       const rect = bannerRef.current.getBoundingClientRect();
@@ -257,7 +161,7 @@ const Banner = () => {
       } else {
         setGlitchChar("");
       }
-    }, 10); // 10ms debounce for smoother performance
+    };
     
     window.addEventListener('scroll', handleScroll);
     // Initial call to handle case when banner is already in view
@@ -279,7 +183,7 @@ const Banner = () => {
                 className="banner__name-animated"
                 style={{
                   fontFamily: fonts[currentFontIndex],
-                  transition: 'font-family 0.5s ease-in-out', // Slowed down from 0.2s to 0.5s with smoother easing
+                  transition: 'font-family 0.01s linear', // Faster transition (was 0.2s ease)
                   marginRight: '0.8rem' // Add spacing after SHANE
                 }}
               >
@@ -313,19 +217,13 @@ const Banner = () => {
         
         {/* CTA Buttons */}
         <div className={`banner__cta-container ${ctaVisible ? 'banner__cta-container--visible' : ''}`}>
-          <a 
-            href="#projects" 
-            className="banner__cta-button"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('projects').scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-              });
-            }}
-          >
+          <a href="#projects" className="banner__cta-button">
             <span className="banner__cta-text">&gt; View Projects</span>
             <span className="banner__cta-arrow">↓</span>
+          </a>
+          <a href="mailto:contact@shanes.me" className="banner__cta-button banner__cta-button--email">
+            <span className="banner__cta-text">&gt; Email Me</span>
+            <span className="banner__cta-arrow">@</span>
           </a>
         </div>
       </div>
@@ -333,7 +231,6 @@ const Banner = () => {
   );
 };
 
-// TerminalTypewriter component with hydration fixes
 const TerminalTypewriter = () => {
   const containerRef = useRef(null);
   const [displayText, setDisplayText] = useState("");
@@ -343,48 +240,22 @@ const TerminalTypewriter = () => {
   const animationRef = useRef(null);
   const prevLengthRef = useRef(0);
   const lastUpdateTimeRef = useRef(0);
-  const typingSpeedRef = useRef(5); // Reduced from 100ms to 5ms for faster typing
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [isClient, setIsClient] = useState(false); // New state to track client-side rendering
+  const typingSpeedRef = useRef(100); // Time in ms between character updates - higher = slower
 
   const fullText = `> SYSTEM INITIALIZING...\n> LOADING RESOURCES\n> ESTABLISHING CONNECTION\n\nCONNECTION ESTABLISHED\n\nThis is a demonstration of a classic computer terminal effect that types text as you scroll down the page.\n\nThe characters appear one by one in sync with your scrolling, creating an interactive typing experience.\n\nThe glitchy symbols at the cursor simulate the imperfect rendering and noise of old CRT displays.\n\n> PROCESSING DATA\n> GENERATING CONTENT\n> RENDERING INTERFACE\n\nCONTENT LOADED SUCCESSFULLY`;
 
-  // Mark when we're on the client
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Initialize with safe values that work on both server and client
+  // Client-side only calculations to avoid hydration mismatch
   const [terminalDimensions, setTerminalDimensions] = useState({ 
     lineCount: 1, 
     maxLineLength: 1 
   });
   
-  // Update dimensions only on client side
+  // Move calculations to useEffect to run only client-side
   useEffect(() => {
-    if (isClient) {
-      const lineCount = fullText.split('\n').length;
-      const maxLineLength = Math.max(...fullText.split('\n').map(line => line.length));
-      setTerminalDimensions({ lineCount, maxLineLength });
-    }
-  }, [fullText, isClient]);
-  
-  // Set terminal to fully rendered on load - client side only
-  useEffect(() => {
-    if (isClient && isInitialLoad) {
-      // Set the target to the full text length immediately after mounting
-      setTargetCharCount(fullText.length);
-      setIsInitialLoad(false);
-      
-      // Use an ultra-fast typing speed for initial render
-      typingSpeedRef.current = 10;
-      
-      // Reset typing speed after initial render is complete
-      setTimeout(() => {
-        typingSpeedRef.current = 50;
-      }, fullText.length * 10 + 300);
-    }
-  }, [fullText.length, isInitialLoad, isClient]);
+    const lineCount = fullText.split('\n').length;
+    const maxLineLength = Math.max(...fullText.split('\n').map(line => line.length));
+    setTerminalDimensions({ lineCount, maxLineLength });
+  }, [fullText]);
 
   // Smooth typing animation
   useEffect(() => {
@@ -461,9 +332,9 @@ const TerminalTypewriter = () => {
     };
   }, [targetCharCount, fullText, displayText.length, isTypingForward]);
 
-  // Handle scroll effect with debounce
+  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = debounce(() => {
+    const handleScroll = () => {
       if (!containerRef.current) return;
 
       const rect = containerRef.current.getBoundingClientRect();
@@ -495,7 +366,7 @@ const TerminalTypewriter = () => {
       if (newTargetCount !== targetCharCount) {
         setTargetCharCount(newTargetCount);
       }
-    }, 10);
+    };
 
     window.addEventListener("scroll", handleScroll);
     handleScroll(); // Initial calculation
@@ -516,7 +387,7 @@ const TerminalTypewriter = () => {
              position: 'relative'
            }}>
         {/* Invisible full text to establish container size - only on client */}
-        {isClient && (
+        {typeof window !== 'undefined' && (
           <span className="terminal__hidden-text">{fullText}</span>
         )}
         
@@ -536,225 +407,239 @@ const TerminalTypewriter = () => {
   );
 };
 
-// Optimized ASCII Background with hydration fix
-const AsciiBackground = ({ rows = 20, cols = 100 }) => {
-  const canvasRef = useRef(null);
+// ASCII Background Component - with improved responsiveness
+const AsciiBackground = ({ rows = 30, cols = 200 }) => {
+  const [asciiGrid, setAsciiGrid] = useState([]);
   const [viewportDimensions, setViewportDimensions] = useState({ width: 0, height: 0 });
-  const [isMounted, setIsMounted] = useState(false);
-  const animationTimeRef = useRef(0);
-  const animFrameRef = useRef(null);
   
-  // First, set mounted state to avoid hydration mismatch
+  // Track viewport dimensions
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  
-  // Track viewport dimensions with debounce
-  useEffect(() => {
-    if (!isMounted) return;
-    
-    const updateDimensions = debounce(() => {
+    const updateDimensions = () => {
       setViewportDimensions({
         width: window.innerWidth,
         height: window.innerHeight
       });
-    }, 100); // 100ms debounce for resize
+    };
     
+    // Set initial dimensions
     updateDimensions();
+    
+    // Update on resize
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
-  }, [isMounted]);
+  }, []);
   
-  // Use canvas for rendering instead of DOM elements
+  // Generate and update ASCII grid
   useEffect(() => {
-    if (!isMounted || !canvasRef.current || viewportDimensions.width === 0) return;
+    // Only generate grid on client and when viewport dimensions are known
+    if (viewportDimensions.width === 0) return;
     
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    // Adjust columns based on viewport width for consistent density
+    const dynamicCols = Math.max(300, Math.floor(viewportDimensions.width / 8)); 
     
-    // Set canvas dimensions
-    canvas.width = viewportDimensions.width;
-    canvas.height = viewportDimensions.height;
+    // ASCII characters to use - only standard ASCII, no special characters
+    const ascii = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%&*()_+-=/\\|[]{}~.<>?!";
     
-    // ASCII characters - using smaller set for better performance
-    const ascii = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%&*()"; 
-    
-    // Create density adjusted to screen width
-    const density = Math.max(50, Math.min(120, Math.floor(viewportDimensions.width / 20)));
-    const gridRows = Math.floor(viewportDimensions.height / 20);
-    
-    // Character size
-    const charSize = 12;
-    
-    // Animation function with requestAnimationFrame
-    const animate = () => {
-      // Clear canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Create initial grid - adjusting for full width
+    const createGrid = () => {
+      const grid = [];
       
-      // Update animation time
-      animationTimeRef.current += 0.05;
-      
-      // Draw ASCII characters
-      ctx.font = `${charSize}px monospace`;
-      ctx.fillStyle = '#d8d8d8';
-      
-      for (let i = 0; i < gridRows; i++) {
-        for (let j = 0; j < density; j++) {
-          // Increase chance of space for better performance
-          if (Math.random() > 0.9) {
-            const char = ascii[Math.floor(Math.random() * ascii.length)];
-            
-            // Position with some randomness
-            const x = (j / density) * canvas.width;
-            const y = i * charSize * 1.2;
-            
-            // Gradient opacity
-            const gradientPos = j / density;
-            const waveOffset = Math.sin((i * 0.1) + (j * 0.05) + animationTimeRef.current * 0.1) * 0.2;
-            const opacity = Math.min(0.4, Math.max(0.05, (0.1 + (gradientPos * 0.3) + waveOffset) * 0.4));
-            
-            // Apply opacity
-            ctx.globalAlpha = opacity;
-            ctx.fillText(char, x, y);
-          }
+      for (let i = 0; i < rows; i++) {
+        const row = [];
+        for (let j = 0; j < dynamicCols; j++) {
+          // Higher chance of space for better readability
+          const char = Math.random() > 0.85 
+            ? ascii[Math.floor(Math.random() * ascii.length)] 
+            : ' ';
+          
+          // Calculate gradient position (0.0 to 1.0)
+          const gradientPos = j / dynamicCols;
+          
+          // Store character and its gradient value
+          row.push({
+            char,
+            opacity: getGradientOpacity(gradientPos, i)
+          });
         }
+        grid.push(row);
       }
       
-      // Continue animation
-      animFrameRef.current = requestAnimationFrame(animate);
+      return grid;
     };
     
-    // Start animation
-    animFrameRef.current = requestAnimationFrame(animate);
-    
-    // Cleanup
-    return () => {
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
+    // Helper function for gradient effect
+    const getGradientOpacity = (position, row) => {
+      // Create a wave-like pattern that varies with row
+      const waveOffset = Math.sin(row * 0.2) * 0.2;
+      
+      // Different gradient patterns
+      const pattern = Math.floor(row / 10) % 3;
+      
+      if (pattern === 0) {
+        // Left to right fade - increase base opacity
+        return 0.15 + (position * 0.3) + waveOffset;
+      } else if (pattern === 1) {
+        // Center focus - increase peak opacity
+        return 0.15 + (0.4 - Math.abs(position - 0.5) * 0.5) + waveOffset;
+      } else {
+        // Right to left fade - increase base opacity
+        return 0.15 + ((1 - position) * 0.3) + waveOffset;
       }
     };
-  }, [isMounted, viewportDimensions]);
-  
-  // Don't render anything during SSR - crucial for avoiding hydration mismatch
-  if (typeof window === 'undefined' || !isMounted) {
-    return null;
-  }
+    
+    // Initialize or regenerate grid when dimensions change
+    setAsciiGrid(createGrid());
+    
+    // Glitch effect - randomly change characters
+    const glitchInterval = setInterval(() => {
+      setAsciiGrid(prevGrid => {
+        // Create a copy of the grid
+        const newGrid = [...prevGrid.map(row => [...row])];
+        
+        // Change random characters
+        const numChanges = Math.floor(Math.random() * 30) + 15;
+        
+        for (let i = 0; i < numChanges; i++) {
+          const row = Math.floor(Math.random() * newGrid.length);
+          const col = Math.floor(Math.random() * newGrid[0].length);
+          
+          // 50% chance to just use a space to create more "noise"
+          const char = Math.random() > 0.5 
+            ? ascii[Math.floor(Math.random() * ascii.length)] 
+            : ' ';
+          
+          // Preserve the opacity value of the original character
+          const opacity = newGrid[row][col].opacity;
+          newGrid[row][col] = { char, opacity };
+        }
+        
+        return newGrid;
+      });
+    }, 150);  // Update every 150ms
+    
+    return () => clearInterval(glitchInterval);
+  }, [asciiGrid.length, rows, viewportDimensions]);
 
-  // Client-side only rendering
   return (
-    <canvas 
-      ref={canvasRef} 
-      className="ascii-bg"
-      style={{ 
-        width: '100%', 
-        height: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        zIndex: 0,
-        opacity: 0.4,
-        maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0) 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0) 100%)'
-      }}
-    />
+    <div className="ascii-bg" style={{ 
+      width: '100vw', 
+      overflow: 'hidden',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: '100%',
+      zIndex: 0,
+      opacity: 0.5 // Lower the overall opacity of the entire ASCII container
+    }}>
+      {asciiGrid.map((row, i) => (
+        <div key={i} className="ascii-bg__row">
+          {row.map((item, j) => {
+            // Use much lower opacity values for a more subtle effect
+            const opacity = Math.min(0.6, Math.max(0.05, item.opacity * 0.6));
+            
+            return (
+              <span 
+                key={`${i}-${j}`} 
+                className="ascii-bg__char"
+                style={{
+                  opacity: opacity,
+                  color: '#c0c0c0', // Lighter grey color
+                  fontSize: '8px', // Smaller font size makes it less intrusive
+                }}
+              >
+                {item.char}
+              </span>
+            );
+          })}
+        </div>
+      ))}
+    </div>
   );
 };
 
-// Use dynamic import with ssr: false for components that should only render on client
-const LazyProjectsShowcase = dynamic(() => import('./components/ProjectsShowcase'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex justify-center p-12">
-      <span className="text-green-500">Loading projects...</span>
-    </div>
-  )
-});
+// New Projects Showcase Component
+const ProjectsShowcase = () => {
+  return (
+    <section className="projects-showcase" id="projects" style={{ position: 'relative' }}>
+      <div className="projects-showcase__ascii-container" style={{ 
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%', 
+        height: '100%',
+        overflow: 'hidden',
+        zIndex: 1
+      }}>
+        <AsciiBackground rows={40} />
+      </div>
+      
+      <div className="projects-showcase__container" style={{ 
+        position: 'relative',
+        zIndex: 2,
+        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+        backdropFilter: 'blur(1px)',
+        padding: '2rem',
+        borderRadius: '0.5rem',
+      }}>
+        <h2 className="projects-showcase__title">Featured Projects</h2>
+        <div className="projects-showcase__grid">
+          <a href="https://github.com/mahelaa/spotify-track-clustering" target="_blank" rel="noopener noreferrer" 
+             className="projects-showcase__card">
+            <div className="projects-showcase__card-content">
+              <h3 className="projects-showcase__card-title">&gt; Spotify Track Clustering</h3>
+              <p className="projects-showcase__card-desc">
+                ML-powered application that clusters Spotify tracks based on audio features using K-means clustering
+              </p>
+              <div className="projects-showcase__card-tags">
+                <span className="projects-showcase__tag">Python</span>
+                <span className="projects-showcase__tag">Scikit-learn</span>
+                <span className="projects-showcase__tag">Spotify API</span>
+              </div>
+            </div>
+          </a>
+          
+          <a href="https://github.com/mahelaa/Design-Patterns-Space-Invaders" target="_blank" rel="noopener noreferrer" 
+             className="projects-showcase__card">
+            <div className="projects-showcase__card-content">
+              <h3 className="projects-showcase__card-title">&gt; Space Invaders</h3>
+              <p className="projects-showcase__card-desc">
+                Java implementation of Space Invaders showcasing various design patterns
+              </p>
+              <div className="projects-showcase__card-tags">
+                <span className="projects-showcase__tag">Java</span>
+                <span className="projects-showcase__tag">Design Patterns</span>
+                <span className="projects-showcase__tag">OOP</span>
+              </div>
+            </div>
+          </a>
+          
+          <a href="https://github.com/mahelaa/INFO2300-Final-Project" target="_blank" rel="noopener noreferrer" 
+             className="projects-showcase__card">
+            <div className="projects-showcase__card-content">
+              <h3 className="projects-showcase__card-title">&gt; Ithaca Music Scene</h3>
+              <p className="projects-showcase__card-desc">
+                Dynamic web platform for Ithaca's music community to discover and share local events
+              </p>
+              <div className="projects-showcase__card-tags">
+                <span className="projects-showcase__tag">PHP</span>
+                <span className="projects-showcase__tag">MySQL</span>
+                <span className="projects-showcase__tag">JavaScript</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // Footer Component
 const Footer = () => {
-  const [year, setYear] = useState("----");
-  const emailRef = useRef(null);
-  const [arrowPosition, setArrowPosition] = useState({ top: 0 });
+  const currentYear = new Date().getFullYear();
   
-  useEffect(() => {
-    setYear(new Date().getFullYear().toString());
-    
-    // Function to update arrow position based on email element
-    const updateArrowPosition = () => {
-      if (emailRef.current) {
-        const emailRect = emailRef.current.getBoundingClientRect();
-        const footerRect = emailRef.current.closest('footer').getBoundingClientRect();
-        
-        // Calculate position relative to the footer
-        const top = emailRect.top - footerRect.top + emailRect.height / 2;
-        
-        setArrowPosition({ top });
-      }
-    };
-    
-    // Update position initially and on window resize
-    updateArrowPosition();
-    window.addEventListener('resize', updateArrowPosition);
-    
-    // Check position again after a delay to account for any layout shifts
-    const positionTimer = setTimeout(updateArrowPosition, 500);
-    
-    return () => {
-      window.removeEventListener('resize', updateArrowPosition);
-      clearTimeout(positionTimer);
-    };
-  }, []);
-
   return (
-    <footer className="footer bg-black/5 dark:bg-white/5" id="contact" style={{ 
-      border: 'none',
-      background: 'transparent',
-      position: 'relative',
-    }}>
-      {/* Long arrow pointing to email */}
-      <div className="arrow-container" style={{
-        position: 'absolute',
-        top: `${arrowPosition.top}px`,
-        right: '0%', // Changed from 2% to 0% to move it all the way to the left
-        width: '60%', // Extended from 45% to 60% to make it longer
-        height: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        zIndex: 5,
-        pointerEvents: 'none',
-      }}>
-        <div className="arrow-line" style={{
-          width: '100%',
-          height: '2px',
-          backgroundColor: 'rgba(74, 222, 128, 0.6)',
-          position: 'relative',
-        }}></div>
-        <div className="arrow-head" style={{
-          position: 'absolute',
-          left: '0',
-          width: '0',
-          height: '0',
-          borderTop: '8px solid transparent',
-          borderBottom: '8px solid transparent',
-          borderRight: '12px solid rgba(74, 222, 128, 0.8)',
-          transform: 'translateX(-6px)',
-        }}></div>
-        <div className="arrow-text" style={{
-          position: 'absolute',
-          right: '15px', // Adjusted text position
-          top: '-25px',
-          color: 'rgba(74, 222, 128, 0.8)',
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          whiteSpace: 'nowrap', // Ensure text stays on one line
-        }}>
-        </div>
-      </div>
-
-      <div className="footer__container" style={{ 
-        border: 'none',
-        backgroundColor: 'transparent' // Keep container transparent to let the footer bg show
-      }}>
+    <footer className="footer" id="contact">
+      <div className="footer__container">
         <h2 className="footer__title">&gt; Connect</h2>
         
         <div className="footer__content">
@@ -763,34 +648,27 @@ const Footer = () => {
               <span className="footer__label">Based in:</span>
               <a className="footer__link">Toronto, Canada</a>
             </div>
-            <div className="footer__contact-item" ref={emailRef}>
-              <span className="footer__label">Email:</span>
-              <a href="mailto:contact@shanes.me" target="_blank" rel="noopener noreferrer" className="footer__link" style={{
-                position: 'relative',
-                zIndex: 10, // Ensure the email link is above the arrow
-                display: 'inline-block', // Make sure the positioning works properly
-              }}>
-                contact@shanes.me
-                <span style={{
-                  position: 'absolute',
-                  bottom: '-2px',
-                  left: '0',
-                  width: '100%',
-                  height: '2px',
-                  backgroundColor: 'rgba(74, 222, 128, 0.6)',
-                  animation: 'pulse 2s infinite'
-                }}></span>
-              </a>
+            <div className="footer__contact-item">
+              <span className="footer__label">GitHub:</span>
+              <a href="https://github.com/mahelaa" target="_blank" rel="noopener noreferrer" className="footer__link">github.com/mahelaa</a>
+            </div>
+            <div className="footer__contact-item">
+              <span className="footer__label">LinkedIn:</span>
+              <a href="https://linkedin.com/in/shanesa" target="_blank" rel="noopener noreferrer" className="footer__link">linkedin.com/in/shanesa</a>
             </div>
           </div>
           
           <div className="footer__message">
             <span className="footer__terminal-line">&gt; echo "Thanks for visiting my portfolio!"</span>
+            <p className="footer__description">
+              I'm passionate about creating efficient, user-friendly solutions. 
+              Let's collaborate on your next project.
+            </p>
           </div>
         </div>
         
         <div className="footer__copyright">
-          <span>&copy; {year} Shane Abeysekera</span>
+          <span>&copy; {currentYear} Shane Abeysekera</span>
           <span className="footer__terminal-cursor"></span>
         </div>
       </div>
@@ -798,39 +676,9 @@ const Footer = () => {
   );
 };
 
-// Main component
 export default function Home() {
-  const [mounted, setMounted] = useState(false);
-
-  // Wait for client-side rendering before applying effects
-  useEffect(() => {
-    setMounted(true);
-    
-    // Preload critical fonts
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'font';
-    link.href = 'https://fonts.googleapis.com/css2?family=VT323&display=swap';
-    document.head.appendChild(link);
-    
-    // Set smooth scrolling at the document level
-    document.documentElement.style.scrollBehavior = 'smooth';
-    
-    return () => {
-      document.documentElement.style.scrollBehavior = '';
-      if (document.head.contains(link)) {
-        document.head.removeChild(link);
-      }
-    };
-  }, []);
-
   return (
-    <div className="min-h-screen flex flex-col bg-black/5 dark:bg-white/5 relative">
-      {/* Add ASCII background directly to the main component */}
-      {mounted && <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <AsciiBackground />
-      </div>}
-      
+    <div className="min-h-screen flex flex-col bg-black/5 dark:bg-white/5">
       <RetroNavbar />
       <Banner />
       <div className="p-8 flex items-center justify-center">
@@ -838,10 +686,7 @@ export default function Home() {
           <TerminalTypewriter />
         </main>
       </div>
-      
-      {/* Only render on client-side */}
-      {mounted && <LazyProjectsShowcase />}
-      
+      <ProjectsShowcase />
       <Footer />
     </div>
   );
